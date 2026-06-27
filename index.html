@@ -332,7 +332,7 @@ function loadAll() {
       renderCentro();
     }
   }
-  fetchSheet('Leads Trail 2026-2027', function(err, data) {
+  fetchSheet('Leads Trail 2026-2727', function(err, data) {
     if (err || !data) { if(rowsE.length===0) rowsE=FALLBACK_E; errs++; }
     else if(data.length>0) rowsE=data; else if(rowsE.length===0) rowsE=FALLBACK_E;
     check();
@@ -342,7 +342,7 @@ function loadAll() {
     else if(data.length>0) rowsS=data; else if(rowsS.length===0) rowsS=FALLBACK_S;
     check();
   });
-  fetchSheet('CuyoNOA', function(err, data) {
+  fetchSheet('Cuyo NOA', function(err, data) {
     if (err || !data) { if(rowsC.length===0) rowsC=[]; errs++; }
     else if(data.length>0) rowsC=data;
     check();
