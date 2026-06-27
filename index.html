@@ -181,10 +181,87 @@ td { padding: 10px 12px; vertical-align: top; line-height: 1.5; color: #222; }
       </table>
     </div>
   </div>
+
+  <div id="tab-cuyo" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="c-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="c-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="c-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="c-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="c-srch" type="text" placeholder="Buscar organización, zona..." oninput="renderCuyo()">
+      <div class="chips">
+        <button class="chip on" onclick="setCF('all',this)">Todos</button>
+        <button class="chip" onclick="setCF('Guía de montaña',this)">Guías montaña</button>
+        <button class="chip" onclick="setCF('Guía de pesca',this)">Guías pesca</button>
+        <button class="chip" onclick="setCF('Club andino',this)">Clubes andinos</button>
+        <button class="chip" onclick="setCF('Prof. Ed. Física',this)">Prof. Ed. Física</button>
+        <button class="chip" onclick="setCF('Parques Nacionales',this)">Parques Nacionales</button>
+        <button class="chip" onclick="setCF('Agencia outdoor',this)">Agencias outdoor</button>
+        <button class="chip" onclick="setCF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:130px" onclick="sortC('segmento')">Segmento ↕</th>
+          <th style="width:190px" onclick="sortC('evento')">Organización ↕</th>
+          <th style="width:145px" onclick="sortC('lugar')">Zona ↕</th>
+          <th style="width:145px" onclick="sortC('organizador')">Contacto</th>
+          <th style="width:80px" onclick="sortC('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:110px" onclick="sortC('volumen')">Volumen</th>
+          <th style="width:95px" onclick="sortC('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="c-tbody"><tr><td colspan="9" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-centro" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="ce-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="ce-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ce-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ce-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="ce-srch" type="text" placeholder="Buscar organización, zona..." oninput="renderCentro()">
+      <div class="chips">
+        <button class="chip on" onclick="setCEF('all',this)">Todos</button>
+        <button class="chip" onclick="setCEF('Productora de eventos',this)">Productoras eventos</button>
+        <button class="chip" onclick="setCEF('Comunidad running',this)">Comunidades running</button>
+        <button class="chip" onclick="setCEF('Club andino',this)">Clubes andinos</button>
+        <button class="chip" onclick="setCEF('Asociación atletismo',this)">Asociaciones atletismo</button>
+        <button class="chip" onclick="setCEF('Prof. Ed. Física',this)">Prof. Ed. Física</button>
+        <button class="chip" onclick="setCEF('Guía de pesca',this)">Guías pesca</button>
+        <button class="chip" onclick="setCEF('Parques Nacionales',this)">Parques Nacionales</button>
+        <button class="chip" onclick="setCEF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:130px" onclick="sortCE('segmento')">Segmento ↕</th>
+          <th style="width:190px" onclick="sortCE('evento')">Organización ↕</th>
+          <th style="width:145px" onclick="sortCE('lugar')">Zona ↕</th>
+          <th style="width:145px" onclick="sortCE('organizador')">Contacto</th>
+          <th style="width:80px" onclick="sortCE('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:110px" onclick="sortCE('volumen')">Volumen</th>
+          <th style="width:95px" onclick="sortCE('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="ce-tbody"><tr><td colspan="9" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPpSdf2UEbUZv0ydnrDK8_P6-ydTFYbeBwn76zGb0Iizix17lbN-4lYyZXMe_WJSuqcQ/exec';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLrkShFd5uukPyCTMor3twB58WywA--8tGBxGot7FXynCIj25h3Jau8C6t3JntZycJ/exec';
 
 var rowsE = [], rowsS = [], rowsC = [], rowsCentro = [];
 var activeEF = 'all', activeSF = 'all', activeCF = 'all', activeCEF = 'all';
@@ -255,12 +332,12 @@ function loadAll() {
       renderCentro();
     }
   }
-  fetchSheet('Leads_Trail_Argentina_2026_2027', function(err, data) {
+  fetchSheet('Leads Trail 2026-2027', function(err, data) {
     if (err || !data) { if(rowsE.length===0) rowsE=FALLBACK_E; errs++; }
     else if(data.length>0) rowsE=data; else if(rowsE.length===0) rowsE=FALLBACK_E;
     check();
   });
-  fetchSheet('Leads Patagonia Segmentos', function(err, data) {
+  fetchSheet('Leads Patagonia Segmento', function(err, data) {
     if (err || !data) { if(rowsS.length===0) rowsS=FALLBACK_S; errs++; }
     else if(data.length>0) rowsS=data; else if(rowsS.length===0) rowsS=FALLBACK_S;
     check();
