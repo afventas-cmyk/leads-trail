@@ -553,11 +553,11 @@ function matchesBA(r) {
   
   if (f!=='all' && f!=='alta') {
     var match = false;
-    if (f.indexOf('community')>=0 && (tipo.indexOf('community')>=0 || tipo.indexOf('running team')>=0 || tipo.indexOf('portal')>=0)) match=true;
-    if (f.indexOf('club')>=0 && (tipo.indexOf('club')>=0 || tipo.indexOf('atletismo')>=0 || tipo.indexOf('asociación')>=0)) match=true;
-    if (f.indexOf('tienda')>=0 && (tipo.indexOf('store')>=0 || tipo.indexOf('tienda')>=0 || tipo.indexOf('indumentaria')>=0 || tipo.indexOf('escalada')>=0 || tipo.indexOf('outdoor')>=0 || tipo.indexOf('cadena')>=0 || tipo.indexOf('brand')>=0 || tipo.indexOf('distribuidor')>=0)) match=true;
-    if (f.indexOf('organizador')>=0 && (tipo.indexOf('event')>=0 || tipo.indexOf('carrera')>=0 || tipo.indexOf('circuito')>=0 || tipo.indexOf('corporate')>=0)) match=true;
-    if (f.indexOf('gobierno')>=0 && tipo.indexOf('government')>=0) match=true;
+    if ((f.indexOf('community')>=0 || f.indexOf('comunidad')>=0) && (tipo.indexOf('community')>=0 || tipo.indexOf('running team')>=0 || tipo.indexOf('portal')>=0 || tipo.indexOf('asociación civil')>=0)) match=true;
+    if ((f.indexOf('club')>=0 || f.indexOf('multisport')>=0) && (tipo.indexOf('club')>=0 || tipo.indexOf('atletismo')>=0 || tipo.indexOf('asociación')>=0 || tipo.indexOf('circuito')>=0)) match=true;
+    if ((f.indexOf('store')>=0 || f.indexOf('tienda')>=0) && (tipo.indexOf('store')>=0 || tipo.indexOf('tienda')>=0 || tipo.indexOf('indumentaria')>=0 || tipo.indexOf('escalada')>=0 || tipo.indexOf('outdoor')>=0 || tipo.indexOf('cadena')>=0 || tipo.indexOf('brand')>=0 || tipo.indexOf('distribuidor')>=0)) match=true;
+    if ((f.indexOf('event')>=0 || f.indexOf('organizador')>=0 || f.indexOf('org')>=0) && (tipo.indexOf('event')>=0 || tipo.indexOf('carrera')>=0 || tipo.indexOf('circuito competitivo')>=0 || tipo.indexOf('corporate')>=0 || tipo.indexOf('tech')>=0 || tipo.indexOf('cronometraje')>=0)) match=true;
+    if ((f.indexOf('government')>=0 || f.indexOf('gobierno')>=0) && tipo.indexOf('government')>=0) match=true;
     if (!match) return false;
   }
   
