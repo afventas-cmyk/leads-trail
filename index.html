@@ -1,0 +1,576 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base de Leads — Trail Running Argentina 2026-2027</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
+
+.page-header { background: #fff; border-bottom: 1px solid #e5e3dd; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 10; }
+.page-header h1 { font-size: 15px; font-weight: 600; color: #111; }
+.page-header p { font-size: 11px; color: #999; margin-top: 2px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.refresh-btn { font-size: 12px; padding: 5px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #444; cursor: pointer; }
+.refresh-btn:hover { background: #f5f4f0; }
+.sync-status { font-size: 11px; color: #aaa; }
+
+.tabs { background: #fff; border-bottom: 1px solid #e5e3dd; padding: 0 28px; display: flex; gap: 0; }
+.tab { font-size: 13px; padding: 10px 18px; cursor: pointer; color: #888; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.tab:hover { color: #333; }
+.tab.active { color: #111; border-bottom-color: #111; font-weight: 500; }
+
+.main { padding: 20px 28px; max-width: 1400px; margin: 0 auto; }
+
+.alert { background: #fff8f0; border: 1px solid #f5d0a8; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #8a4a10; display: none; }
+.alert.show { display: block; }
+
+.stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat-card { background: #fff; border: 1px solid #e5e3dd; border-radius: 10px; padding: 10px 16px; min-width: 95px; }
+.stat-card .num { font-size: 22px; font-weight: 600; color: #111; }
+.stat-card .lbl { font-size: 11px; color: #999; margin-top: 1px; }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.search-box { flex: 1; min-width: 160px; max-width: 280px; padding: 6px 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: #fff; color: #111; outline: none; }
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip { font-size: 11px; padding: 4px 10px; border: 1px solid #ddd; border-radius: 20px; background: #fff; color: #666; cursor: pointer; white-space: nowrap; }
+.chip:hover { border-color: #aaa; color: #111; }
+.chip.on { background: #111; color: #fff; border-color: #111; }
+
+.table-wrap { background: #fff; border: 1px solid #e5e3dd; border-radius: 12px; overflow: hidden; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 860px; }
+thead th { background: #f9f8f5; padding: 9px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #999; border-bottom: 1px solid #e5e3dd; white-space: nowrap; cursor: pointer; }
+thead th:hover { color: #555; }
+tbody tr { border-bottom: 1px solid #f0eee8; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #faf9f6; }
+td { padding: 10px 12px; vertical-align: top; line-height: 1.5; color: #222; }
+
+.f-date { font-weight: 600; font-size: 13px; }
+.f-year { font-size: 11px; color: #bbb; }
+.ev-name { font-weight: 600; font-size: 13px; color: #111; }
+.ev-loc { font-size: 11px; color: #999; margin-top: 2px; }
+.org { font-size: 12px; color: #666; }
+.vol { font-size: 11px; color: #888; margin-top: 2px; font-style: italic; }
+
+.badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+.b-alta { background:#fef0ea; color:#c04a10; border:1px solid #f5c0a0; }
+.b-media { background:#eef3fd; color:#1a5cb0; border:1px solid #a8c8f5; }
+
+.mb { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; margin:1px 2px 1px 0; }
+.mb-a { background:#edf7e0; color:#2a5e0e; border:1px solid #b0df90; }
+.mb-b { background:#f0edfb; color:#4a2d9c; border:1px solid #c8b8f5; }
+
+.sb { display:inline-block; font-size:10px; font-weight:500; padding:2px 8px; border-radius:20px; }
+.s-conf { background:#e3f5ee; color:#0a6040; }
+.s-est { background:#fdf4e3; color:#7a4a08; }
+.s-cont { background:#e3edf5; color:#0a406e; }
+.s-pcon { background:#f5f5f5; color:#666; }
+
+.seg-badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+.seg-guia-montana { background:#edf7e0; color:#27500A; }
+.seg-club-andino { background:#eeedfe; color:#3C3489; }
+.seg-guia-pesca { background:#e6f1fb; color:#0C447C; }
+.seg-guardavidas { background:#faeeda; color:#633806; }
+.seg-prof-ef { background:#faece7; color:#712B13; }
+.seg-parques { background:#e1f5ee; color:#085041; }
+.seg-agencia { background:#fbeaf0; color:#72243E; }
+
+.gancho { font-size:11px; color:#777; font-style:italic; line-height:1.55; max-width:360px; }
+.empty { text-align:center; padding:40px; color:#ccc; font-size:13px; }
+.loading { text-align:center; padding:40px; color:#bbb; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>🏔 Base de Leads — Trail Running & Segmentos Patagonia</h1>
+    <p id="src-lbl">Conectando con Google Sheets...</p>
+  </div>
+  <div class="header-right">
+    <span class="sync-status" id="sync-txt"></span>
+    <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('eventos', this)">🗓 Eventos 2026-2027</div>
+  <div class="tab" onclick="switchTab('segmentos', this)">🎯 Segmentos Patagonia</div>
+  <div class="tab" onclick="switchTab('cuyo', this)">🏔 Cuyo + NOA</div>
+  <div class="tab" onclick="switchTab('centro', this)">🌾 Centro</div>
+  <div class="tab" onclick="switchTab('buenos-aires', this)">🏃 Buenos Aires + Litoral</div>
+</div>
+
+<div class="main">
+  <div class="alert" id="err-box">⚠️ <strong>Sin conexión a Sheets.</strong> Mostrando datos precargados.</div>
+
+  <div id="tab-eventos">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="e-total">—</div><div class="lbl">Eventos</div></div>
+      <div class="stat-card"><div class="num" id="e-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="e-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="e-2026">—</div><div class="lbl">En 2026</div></div>
+      <div class="stat-card"><div class="num" id="e-2027">—</div><div class="lbl">En 2027</div></div>
+      <div class="stat-card"><div class="num" id="e-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="e-srch" type="text" placeholder="Buscar evento, lugar..." oninput="renderEventos()">
+      <div class="chips">
+        <button class="chip on" onclick="setEF('all',this)">Todos</button>
+        <button class="chip" onclick="setEF('2026',this)">2026</button>
+        <button class="chip" onclick="setEF('2027',this)">2027</button>
+        <button class="chip" onclick="setEF('alta',this)">Alta prioridad</button>
+        <button class="chip" onclick="setEF('media',this)">Media prioridad</button>
+        <button class="chip" onclick="setEF('ma',this)">Marca A</button>
+        <button class="chip" onclick="setEF('mb',this)">Marca B</button>
+        <button class="chip" onclick="setEF('contactado',this)">Contactados</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:90px" onclick="sortE('fecha')">Fecha ↕</th>
+          <th style="width:180px" onclick="sortE('evento')">Evento / Lugar ↕</th>
+          <th style="width:145px" onclick="sortE('organizador')">Organizador ↕</th>
+          <th style="width:80px" onclick="sortE('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:95px" onclick="sortE('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="e-tbody"><tr><td colspan="7" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-segmentos" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="s-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="s-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="s-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="s-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="s-srch" type="text" placeholder="Buscar organización, zona..." oninput="renderSegmentos()">
+      <div class="chips">
+        <button class="chip on" onclick="setSF('all',this)">Todos</button>
+        <button class="chip" onclick="setSF('Guía de montaña',this)">Guías montaña</button>
+        <button class="chip" onclick="setSF('Guía de pesca',this)">Guías pesca</button>
+        <button class="chip" onclick="setSF('Club andino',this)">Clubes andinos</button>
+        <button class="chip" onclick="setSF('Guardavidas',this)">Guardavidas</button>
+        <button class="chip" onclick="setSF('Prof. Ed. Física',this)">Prof. Ed. Física</button>
+        <button class="chip" onclick="setSF('Parques Nacionales',this)">Parques Nacionales</button>
+        <button class="chip" onclick="setSF('Agencia outdoor',this)">Agencias outdoor</button>
+        <button class="chip" onclick="setSF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:130px" onclick="sortS('segmento')">Segmento ↕</th>
+          <th style="width:190px" onclick="sortS('evento')">Organización ↕</th>
+          <th style="width:145px" onclick="sortS('lugar')">Zona ↕</th>
+          <th style="width:145px" onclick="sortS('organizador')">Contacto</th>
+          <th style="width:80px" onclick="sortS('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:110px" onclick="sortS('volumen')">Volumen</th>
+          <th style="width:95px" onclick="sortS('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="s-tbody"><tr><td colspan="9" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-cuyo" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="c-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="c-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="c-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="c-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="c-srch" type="text" placeholder="Buscar organización, zona..." oninput="renderCuyo()">
+      <div class="chips">
+        <button class="chip on" onclick="setCF('all',this)">Todos</button>
+        <button class="chip" onclick="setCF('Guía de montaña',this)">Guías montaña</button>
+        <button class="chip" onclick="setCF('Guía de pesca',this)">Guías pesca</button>
+        <button class="chip" onclick="setCF('Club andino',this)">Clubes andinos</button>
+        <button class="chip" onclick="setCF('Prof. Ed. Física',this)">Prof. Ed. Física</button>
+        <button class="chip" onclick="setCF('Parques Nacionales',this)">Parques Nacionales</button>
+        <button class="chip" onclick="setCF('Agencia outdoor',this)">Agencias outdoor</button>
+        <button class="chip" onclick="setCF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:130px" onclick="sortC('segmento')">Segmento ↕</th>
+          <th style="width:190px" onclick="sortC('evento')">Organización ↕</th>
+          <th style="width:145px" onclick="sortC('lugar')">Zona ↕</th>
+          <th style="width:145px" onclick="sortC('organizador')">Contacto</th>
+          <th style="width:80px" onclick="sortC('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:110px" onclick="sortC('volumen')">Volumen</th>
+          <th style="width:95px" onclick="sortC('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="c-tbody"><tr><td colspan="9" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-centro" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="ce-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="ce-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ce-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ce-cont">—</div><div class="lbl">Contactados</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="ce-srch" type="text" placeholder="Buscar organización, zona..." oninput="renderCentro()">
+      <div class="chips">
+        <button class="chip on" onclick="setCEF('all',this)">Todos</button>
+        <button class="chip" onclick="setCEF('Productora de eventos',this)">Productoras eventos</button>
+        <button class="chip" onclick="setCEF('Comunidad running',this)">Comunidades running</button>
+        <button class="chip" onclick="setCEF('Club andino',this)">Clubes andinos</button>
+        <button class="chip" onclick="setCEF('Asociación atletismo',this)">Asociaciones atletismo</button>
+        <button class="chip" onclick="setCEF('Prof. Ed. Física',this)">Prof. Ed. Física</button>
+        <button class="chip" onclick="setCEF('Guía de pesca',this)">Guías pesca</button>
+        <button class="chip" onclick="setCEF('Parques Nacionales',this)">Parques Nacionales</button>
+        <button class="chip" onclick="setCEF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:130px" onclick="sortCE('segmento')">Segmento ↕</th>
+          <th style="width:190px" onclick="sortCE('evento')">Organización ↕</th>
+          <th style="width:145px" onclick="sortCE('lugar')">Zona ↕</th>
+          <th style="width:145px" onclick="sortCE('organizador')">Contacto</th>
+          <th style="width:80px" onclick="sortCE('prioridad')">Prioridad ↕</th>
+          <th style="width:90px">Marca</th>
+          <th style="width:110px" onclick="sortCE('volumen')">Volumen</th>
+          <th style="width:95px" onclick="sortCE('estado')">Estado ↕</th>
+          <th>Gancho SDR</th>
+        </tr></thead>
+        <tbody id="ce-tbody"><tr><td colspan="9" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-buenos-aires" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="ba-total">—</div><div class="lbl">Leads</div></div>
+      <div class="stat-card"><div class="num" id="ba-alta">—</div><div class="lbl">Alta prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ba-media">—</div><div class="lbl">Media prioridad</div></div>
+      <div class="stat-card"><div class="num" id="ba-caba">—</div><div class="lbl">CABA</div></div>
+      <div class="stat-card"><div class="num" id="ba-gba">—</div><div class="lbl">GBA</div></div>
+      <div class="stat-card"><div class="num" id="ba-litoral">—</div><div class="lbl">Litoral</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="ba-srch" type="text" placeholder="Buscar organización, zona, email..." oninput="renderBA()">
+      <div class="chips">
+        <button class="chip on" onclick="setBAF('all',this)">Todos</button>
+        <button class="chip" onclick="setBAF('Community Running',this)">Comunidades</button>
+        <button class="chip" onclick="setBAF('Multisport Club',this)">Clubs</button>
+        <button class="chip" onclick="setBAF('Running Store',this)">Tiendas</button>
+        <button class="chip" onclick="setBAF('Event Org',this)">Organizadores</button>
+        <button class="chip" onclick="setBAF('Government',this)">Gobierno</button>
+        <button class="chip" onclick="setBAF('alta',this)">Alta prioridad</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:160px" onclick="sortBA('nombre')">Nombre ↕</th>
+          <th style="width:150px" onclick="sortBA('tipo')">Tipo de Lead ↕</th>
+          <th style="width:110px" onclick="sortBA('provincia')">Provincia ↕</th>
+          <th style="width:140px" onclick="sortBA('zona')">Zona/Ubicación</th>
+          <th style="width:140px">Descripción</th>
+          <th style="width:90px" onclick="sortBA('prioridad')">Prioridad ↕</th>
+          <th style="width:150px">Email</th>
+          <th style="width:130px">Web/Contacto</th>
+        </tr></thead>
+        <tbody id="ba-tbody"><tr><td colspan="8" class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEZ09_YLj5xAYD6C5xfAOwrgDuxHwLzw3JMkWVOoD3T4bjFigsXEhMahlXHAEIwf5g/exec';
+
+var rowsE = [], rowsS = [], rowsC = [], rowsCentro = [], rowsBA = [];
+var activeEF = 'all', activeSF = 'all', activeCF = 'all', activeCEF = 'all', activeBAF = 'all';
+var sortECol = '', sortEDir = 1, sortSCol = '', sortSDir = 1, sortCCol = '', sortCDir = 1, sortCECol = '', sortCEDir = 1, sortBACol = '', sortBADir = 1;
+var currentTab = 'eventos';
+
+var FALLBACK_E = [
+  {fecha:"26-28 Jun",anio:"2026",evento:"Turmalina Ultra Run",lugar:"La Falda, Córdoba",organizador:"XTrail América",prioridad:"Alta",marca:"A",gancho:"Turmalina es de las carreras más técnicas de Córdoba — los 3.000m+ de desnivel exigen indumentaria que transpire y aguante.",estado:"Confirmado"},
+  {fecha:"9-11 Jul",anio:"2026",evento:"Nono Trail Run",lugar:"Nono, Traslasierra, Córdoba",organizador:"Mountain Race Logística",prioridad:"Media",marca:"A+B",gancho:"La Pampa de Achala a 2.400 msnm — ¿los corredores ya tienen su kit térmico cubierto para la 60K?",estado:"Confirmado"},
+  {fecha:"29-30 Ago",anio:"2026",evento:"Desafío UTU Ultra Trail",lugar:"Capilla del Monte, Córdoba",organizador:"Warriors Runners / Agencia Córdoba Deportes",prioridad:"Alta",marca:"A+B",gancho:"Con más de 2.000 corredores y el Uritorco como escenario — ¿ya tienen definido el kit técnico del corredor y la remera del staff?",estado:"Confirmado"},
+  {fecha:"9-12 Oct",anio:"2026",evento:"UTACCH — Amanecer Comechingón",lugar:"Villa Yacanto de Calamuchita, Córdoba",organizador:"Mountain Race Logística",prioridad:"Alta",marca:"A+B",gancho:"UTACCH es una de las ultras más duras de Sudamérica y clasificatoria para Western States.",estado:"Confirmado"},
+  {fecha:"10-12 Oct",anio:"2026",evento:"Trail del Viento (10ª edición)",lugar:"Andacollo / Huinganco, Neuquén",organizador:"Daniel Pincu",prioridad:"Alta",marca:"A",gancho:"La única carrera Skyrunning de la Patagonia que llega a los 3.000m del Cerro Corona.",estado:"Confirmado"},
+  {fecha:"15-17 Oct",anio:"2026",evento:"Ultra Fitz Roy",lugar:"El Chaltén, Santa Cruz",organizador:"Org. propia / Gobierno Santa Cruz",prioridad:"Alta",marca:"A",gancho:"El Chaltén y el Fitz Roy — para corredores que van a 100K en Los Glaciares, el rendimiento térmico no es opcional.",estado:"Confirmado"},
+  {fecha:"13-16 Feb",anio:"2027",evento:"Ushuaia by UTMB (Valhöll)",lugar:"Ushuaia, Tierra del Fuego",organizador:"South American Sport Company / UTMB International",prioridad:"Alta",marca:"A+B",gancho:"Ushuaia by UTMB reúne +2.500 corredores de 52 países — el escenario ideal para mostrar telas de alta competencia.",estado:"Confirmado"},
+  {fecha:"7-11 Abr",anio:"2027",evento:"Patagonia Run (17ª edición)",lugar:"San Martín de los Andes, Neuquén",organizador:"Spartan Race S.A.U. / TMX Team",prioridad:"Alta",marca:"A+B",gancho:"Patagonia Run es el festival más grande de América con +6.000 participantes.",estado:"Confirmado"}
+];
+
+var FALLBACK_S = [
+  {fecha:"—",anio:"2026",evento:"AAGM — Asoc. Argentina de Guías de Montaña",lugar:"Bariloche, Río Negro",organizador:"info@aagm.com.ar · aagm.com.ar",prioridad:"Alta",marca:"A+B",gancho:"La AAGM certifica a los guías que llevan personas a las montañas más exigentes del país.",estado:"Por contactar",segmento:"Guía de montaña",volumen:"+200 guías certificados"},
+  {fecha:"—",anio:"2026",evento:"Club Andino Bariloche (CAB)",lugar:"Bariloche, Río Negro",organizador:"info@clubandino.org · clubandino.org",prioridad:"Alta",marca:"A+B",gancho:"Con 3.000 socios y la red de refugios más grande de Sudamérica, el CAB ya tiene una tienda propia.",estado:"Por contactar",segmento:"Club andino",volumen:"+3.000 socios activos"},
+  {fecha:"—",anio:"2026",evento:"SIGUNE — Sindicato Guardavidas Neuquén",lugar:"Neuquén capital",organizador:"Secretario: Ariel Tarifeño",prioridad:"Alta",marca:"B",gancho:"Con +163 guardavidas, una remera manga corta personalizada es una necesidad recurrente.",estado:"Por contactar",segmento:"Guardavidas",volumen:"+163 guardavidas temporada"}
+];
+
+function parseCsv(txt) {
+  var lines = txt.trim().split('\n');
+  if (lines.length < 2) return [];
+  var heads = lines[0].split(',').map(function(h){ return h.replace(/"/g,'').trim().toLowerCase(); });
+  return lines.slice(1).map(function(line) {
+    var vals=[], cur='', inQ=false;
+    for (var i=0; i<line.length; i++) {
+      var c=line[i];
+      if (c==='"') inQ=!inQ;
+      else if (c===','&&!inQ) { vals.push(cur.trim()); cur=''; }
+      else cur+=c;
+    }
+    vals.push(cur.trim());
+    var obj={};
+    heads.forEach(function(h,i){ obj[h]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  }).filter(function(r){ return r.evento||r.fecha; });
+}
+
+function fetchSheet(sheetName, cb) {
+  fetch(SCRIPT_URL + '?sheet=' + encodeURIComponent(sheetName) + '&t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+    .then(function(data){ cb(null, data); })
+    .catch(function(e){ cb(e, null); });
+}
+
+function loadAll() {
+  document.getElementById('sync-txt').textContent = 'Actualizando...';
+  var done = 0;
+  var errs = 0;
+  function check() {
+    done++;
+    if (done === 5) {
+      if (errs > 0) {
+        document.getElementById('err-box').classList.add('show');
+        document.getElementById('src-lbl').textContent = '⚠️ Sin conexión — datos precargados';
+      } else {
+        document.getElementById('err-box').classList.remove('show');
+        document.getElementById('src-lbl').textContent = '✅ Google Sheets conectado · ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      }
+      document.getElementById('sync-txt').textContent = 'Sync: ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      renderEventos();
+      renderSegmentos();
+      renderCuyo();
+      renderCentro();
+      renderBA();
+    }
+  }
+  fetchSheet('Leads Trail 2026-2727', function(err, data) {
+    if (err || !data) { if(rowsE.length===0) rowsE=FALLBACK_E; errs++; }
+    else if(data.length>0) rowsE=data; else if(rowsE.length===0) rowsE=FALLBACK_E;
+    check();
+  });
+  fetchSheet('Leads Patagonia Segmento', function(err, data) {
+    if (err || !data) { if(rowsS.length===0) rowsS=FALLBACK_S; errs++; }
+    else if(data.length>0) rowsS=data; else if(rowsS.length===0) rowsS=FALLBACK_S;
+    check();
+  });
+  fetchSheet('Cuyo NOA', function(err, data) {
+    if (err || !data) { if(rowsC.length===0) rowsC=[]; errs++; }
+    else if(data.length>0) rowsC=data;
+    check();
+  });
+  fetchSheet('Centro', function(err, data) {
+    if (err || !data) { if(rowsCentro.length===0) rowsCentro=[]; errs++; }
+    else if(data.length>0) rowsCentro=data;
+    check();
+  });
+  fetchSheet('Leads Buenos Aires', function(err, data) {
+    if (err || !data) { if(rowsBA.length===0) rowsBA=[]; errs++; }
+    else if(data.length>0) rowsBA=data;
+    check();
+  });
+}
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-eventos').style.display = tab==='eventos' ? 'block' : 'none';
+  document.getElementById('tab-segmentos').style.display = tab==='segmentos' ? 'block' : 'none';
+  document.getElementById('tab-cuyo').style.display = tab==='cuyo' ? 'block' : 'none';
+  document.getElementById('tab-centro').style.display = tab==='centro' ? 'block' : 'none';
+  document.getElementById('tab-buenos-aires').style.display = tab==='buenos-aires' ? 'block' : 'none';
+}
+
+function marcaHtml(m) {
+  if (!m) return '';
+  var u = m.toUpperCase().trim();
+  if (u==='A+B'||u==='AB') return '<span class="mb mb-a">Marca A</span><span class="mb mb-b">Marca B</span>';
+  if (u==='A') return '<span class="mb mb-a">Marca A</span>';
+  if (u==='B') return '<span class="mb mb-b">Marca B</span>';
+  return '<span class="mb">' + m + '</span>';
+}
+function prioHtml(p) {
+  if (!p) return '';
+  return p.toLowerCase()==='alta' ? '<span class="badge b-alta">Alta</span>' : '<span class="badge b-media">Media</span>';
+}
+function estadoHtml(e) {
+  if (!e) return '';
+  var l=e.toLowerCase();
+  if (l.indexOf('confirm')>=0) return '<span class="sb s-conf">Confirmado</span>';
+  if (l.indexOf('estim')>=0) return '<span class="sb s-est">Estimado</span>';
+  if (l.indexOf('contact')>=0 && l.indexOf('por')<0) return '<span class="sb s-cont">Contactado</span>';
+  if (l.indexOf('por contact')>=0) return '<span class="sb s-pcon">Por contactar</span>';
+  return '<span class="sb s-pcon">' + e + '</span>';
+}
+function segHtml(seg) {
+  if (!seg) return '';
+  var cls = 'seg-' + seg.toLowerCase().replace(/[^a-z]/g,'-').replace(/-+/g,'-');
+  var map = {
+    'guía de montaña':'seg-guia-montana','club andino':'seg-club-andino',
+    'guía de pesca':'seg-guia-pesca','guardavidas':'seg-guardavidas',
+    'prof. ed. física':'seg-prof-ef','parques nacionales':'seg-parques',
+    'agencia outdoor':'seg-agencia'
+  };
+  var c = map[seg.toLowerCase()] || '';
+  return '<span class="seg-badge ' + c + '">' + seg + '</span>';
+}
+
+function matchesE(r) {
+  var q = document.getElementById('e-srch').value.toLowerCase();
+  var f = activeEF;
+  if (f==='2026' && r.anio!=='2026') return false;
+  if (f==='2027' && r.anio!=='2027') return false;
+  if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
+  if (f==='media' && (r.prioridad||'').toLowerCase()!=='media') return false;
+  if (f==='ma' && (r.marca||'').toUpperCase().indexOf('A')<0) return false;
+  if (f==='mb' && (r.marca||'').toUpperCase().indexOf('B')<0) return false;
+  if (f==='contactado' && (r.estado||'').toLowerCase().indexOf('contact')<0) return false;
+  if (q) { var hay=[r.evento,r.lugar,r.organizador,r.gancho].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  return true;
+}
+
+function matchesS(r) {
+  var q = document.getElementById('s-srch').value.toLowerCase();
+  var f = activeSF;
+  if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
+  if (f!=='all' && f!=='alta' && (r.segmento||'').toLowerCase() !== f.toLowerCase()) return false;
+  if (q) { var hay=[r.evento,r.lugar,r.organizador,r.gancho,r.segmento,r.volumen].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  return true;
+}
+
+function renderEventos() {
+  var vis = rowsE.filter(matchesE);
+  if (sortECol) vis = vis.slice().sort(function(a,b){ var va=(a[sortECol]||'').toLowerCase(),vb=(b[sortECol]||'').toLowerCase(); return va<vb?-sortEDir:va>vb?sortEDir:0; });
+  var tb = document.getElementById('e-tbody');
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="7" class="empty">No hay eventos que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ return '<tr><td><div class="f-date">'+(r.fecha||'—')+'</div><div class="f-year">'+(r.anio||'')+'</div></td><td><div class="ev-name">'+(r.evento||'—')+'</div><div class="ev-loc">'+(r.lugar||'')+'</div></td><td><div class="org">'+(r.organizador||'—')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td>'+marcaHtml(r.marca)+'</td><td>'+estadoHtml(r.estado)+'</td><td><div class="gancho">'+(r.gancho||'')+'</div></td></tr>'; }).join(''); }
+  document.getElementById('e-total').textContent=rowsE.length;
+  document.getElementById('e-alta').textContent=rowsE.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
+  document.getElementById('e-media').textContent=rowsE.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
+  document.getElementById('e-2026').textContent=rowsE.filter(function(r){return r.anio==='2026';}).length;
+  document.getElementById('e-2027').textContent=rowsE.filter(function(r){return r.anio==='2027';}).length;
+  document.getElementById('e-cont').textContent=rowsE.filter(function(r){return(r.estado||'').toLowerCase().indexOf('contact')>=0&&(r.estado||'').toLowerCase().indexOf('por')<0;}).length;
+}
+
+function renderSegmentos() {
+  var vis = rowsS.filter(matchesS);
+  if (sortSCol) vis = vis.slice().sort(function(a,b){ var va=(a[sortSCol]||'').toLowerCase(),vb=(b[sortSCol]||'').toLowerCase(); return va<vb?-sortSDir:va>vb?sortSDir:0; });
+  var tb = document.getElementById('s-tbody');
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="9" class="empty">No hay leads que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ return '<tr><td>'+segHtml(r.segmento)+'</td><td><div class="ev-name">'+(r.evento||'—')+'</div></td><td><div class="ev-loc">'+(r.lugar||'')+'</div></td><td><div class="org">'+(r.organizador||'—')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td>'+marcaHtml(r.marca)+'</td><td><div class="vol">'+(r.volumen||'—')+'</div></td><td>'+estadoHtml(r.estado)+'</td><td><div class="gancho">'+(r.gancho||'')+'</div></td></tr>'; }).join(''); }
+  document.getElementById('s-total').textContent=rowsS.length;
+  document.getElementById('s-alta').textContent=rowsS.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
+  document.getElementById('s-media').textContent=rowsS.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
+  document.getElementById('s-cont').textContent=rowsS.filter(function(r){return(r.estado||'').toLowerCase().indexOf('contact')>=0&&(r.estado||'').toLowerCase().indexOf('por')<0;}).length;
+}
+
+function setEF(f,btn){ activeEF=f; document.querySelectorAll('#tab-eventos .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderEventos(); }
+function setSF(f,btn){ activeSF=f; document.querySelectorAll('#tab-segmentos .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderSegmentos(); }
+function sortE(col){ sortEDir=sortECol===col?sortEDir*-1:1; sortECol=col; renderEventos(); }
+function sortS(col){ sortSDir=sortSCol===col?sortSDir*-1:1; sortSCol=col; renderSegmentos(); }
+
+
+
+function matchesCE(r) {
+  var q = document.getElementById('ce-srch').value.toLowerCase();
+  var f = activeCEF;
+  if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
+  if (f!=='all' && f!=='alta' && (r.segmento||'').toLowerCase() !== f.toLowerCase()) return false;
+  if (q) { var hay=[r.evento,r.lugar,r.organizador,r.gancho,r.segmento,r.volumen].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  return true;
+}
+function renderCentro() {
+  var vis = rowsCentro.filter(matchesCE);
+  if (sortCECol) vis = vis.slice().sort(function(a,b){ var va=(a[sortCECol]||'').toLowerCase(),vb=(b[sortCECol]||'').toLowerCase(); return va<vb?-sortCEDir:va>vb?sortCEDir:0; });
+  var tb = document.getElementById('ce-tbody');
+  if (!tb) return;
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="9" class="empty">No hay leads que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ return '<tr><td>'+segHtml(r.segmento)+'</td><td><div class="ev-name">'+(r.evento||'—')+'</div></td><td><div class="ev-loc">'+(r.lugar||'')+'</div></td><td><div class="org">'+(r.organizador||'—')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td>'+marcaHtml(r.marca)+'</td><td><div class="vol">'+(r.volumen||'—')+'</div></td><td>'+estadoHtml(r.estado)+'</td><td><div class="gancho">'+(r.gancho||'')+'</div></td></tr>'; }).join(''); }
+  document.getElementById('ce-total').textContent=rowsCentro.length;
+  document.getElementById('ce-alta').textContent=rowsCentro.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
+  document.getElementById('ce-media').textContent=rowsCentro.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
+  document.getElementById('ce-cont').textContent=rowsCentro.filter(function(r){return(r.estado||'').toLowerCase().indexOf('contact')>=0&&(r.estado||'').toLowerCase().indexOf('por')<0;}).length;
+}
+function setCEF(f,btn){ activeCEF=f; document.querySelectorAll('#tab-centro .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderCentro(); }
+function sortCE(col){ sortCEDir=sortCECol===col?sortCEDir*-1:1; sortCECol=col; renderCentro(); }
+function matchesC(r) {
+  var q = document.getElementById('c-srch').value.toLowerCase();
+  var f = activeCF;
+  if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
+  if (f!=='all' && f!=='alta' && (r.segmento||'').toLowerCase() !== f.toLowerCase()) return false;
+  if (q) { var hay=[r.evento,r.lugar,r.organizador,r.gancho,r.segmento,r.volumen].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  return true;
+}
+function renderCuyo() {
+  var vis = rowsC.filter(matchesC);
+  if (sortCCol) vis = vis.slice().sort(function(a,b){ var va=(a[sortCCol]||'').toLowerCase(),vb=(b[sortCCol]||'').toLowerCase(); return va<vb?-sortCDir:va>vb?sortCDir:0; });
+  var tb = document.getElementById('c-tbody');
+  if (!tb) return;
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="9" class="empty">No hay leads que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ return '<tr><td>'+segHtml(r.segmento)+'</td><td><div class="ev-name">'+(r.evento||'—')+'</div></td><td><div class="ev-loc">'+(r.lugar||'')+'</div></td><td><div class="org">'+(r.organizador||'—')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td>'+marcaHtml(r.marca)+'</td><td><div class="vol">'+(r.volumen||'—')+'</div></td><td>'+estadoHtml(r.estado)+'</td><td><div class="gancho">'+(r.gancho||'')+'</div></td></tr>'; }).join(''); }
+  document.getElementById('c-total').textContent=rowsC.length;
+  document.getElementById('c-alta').textContent=rowsC.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
+  document.getElementById('c-media').textContent=rowsC.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
+  document.getElementById('c-cont').textContent=rowsC.filter(function(r){return(r.estado||'').toLowerCase().indexOf('contact')>=0&&(r.estado||'').toLowerCase().indexOf('por')<0;}).length;
+}
+function setCF(f,btn){ activeCF=f; document.querySelectorAll('#tab-cuyo .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderCuyo(); }
+function sortC(col){ sortCDir=sortCCol===col?sortCDir*-1:1; sortCCol=col; renderCuyo(); }
+function matchesBA(r) {
+  var q = document.getElementById('ba-srch').value.toLowerCase();
+  var f = activeBAF;
+  if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
+  if (f!=='all' && f!=='alta' && (r.tipo||'').toLowerCase() !== f.toLowerCase()) return false;
+  if (q) { var hay=[r.nombre,r.tipo,r.provincia,r.zona,r.descripcion,r.email,r.web].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  return true;
+}
+function renderBA() {
+  var vis = rowsBA.filter(matchesBA);
+  if (sortBACol) vis = vis.slice().sort(function(a,b){ var va=(a[sortBACol]||'').toLowerCase(),vb=(b[sortBACol]||'').toLowerCase(); return va<vb?-sortBADir:va>vb?sortBADir:0; });
+  var tb = document.getElementById('ba-tbody');
+  if (!tb) return;
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="8" class="empty">No hay leads que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ return '<tr><td><div class="ev-name">'+(r.nombre||'—')+'</div></td><td>'+(r.tipo||'—')+'</td><td>'+(r.provincia||'—')+'</td><td><div class="ev-loc">'+(r.zona||'')+'</div></td><td><div class="gancho">'+(r.descripcion||'')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td><div class="org">'+(r.email||'—')+'</div></td><td><a href="'+(r.web||'#')+'" target="_blank" style="color:#0066cc;text-decoration:none;">'+(r.web?'Ver':'—')+'</a></div></td></tr>'; }).join(''); }
+  document.getElementById('ba-total').textContent=rowsBA.length;
+  document.getElementById('ba-alta').textContent=rowsBA.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
+  document.getElementById('ba-media').textContent=rowsBA.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
+  document.getElementById('ba-caba').textContent=rowsBA.filter(function(r){return(r.provincia||'').toUpperCase()==='CABA';}).length;
+  document.getElementById('ba-gba').textContent=rowsBA.filter(function(r){return(r.provincia||'').toUpperCase()==='GBA';}).length;
+  document.getElementById('ba-litoral').textContent=rowsBA.filter(function(r){var p=(r.provincia||'').toLowerCase(); return p.indexOf('misiones')>=0||p.indexOf('corrientes')>=0||p.indexOf('entre ríos')>=0;}).length;
+}
+function setBAF(f,btn){ activeBAF=f; document.querySelectorAll('#tab-buenos-aires .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderBA(); }
+function sortBA(col){ sortBADir=sortBACol===col?sortBADir*-1:1; sortBACol=col; renderBA(); }
+
+loadAll();
+setInterval(loadAll, 5*60*1000);
+</script>
+</body>
+</html>
