@@ -547,8 +547,20 @@ function sortC(col){ sortCDir=sortCCol===col?sortCDir*-1:1; sortCCol=col; render
 function matchesBA(r) {
   var q = document.getElementById('ba-srch').value.toLowerCase();
   var f = activeBAF;
+  var tipo = (r.tipo||'').toLowerCase();
+  
   if (f==='alta' && (r.prioridad||'').toLowerCase()!=='alta') return false;
-  if (f!=='all' && f!=='alta' && (r.tipo||'').toLowerCase() !== f.toLowerCase()) return false;
+  
+  if (f!=='all' && f!=='alta') {
+    var match = false;
+    if (f==='community running' && (tipo.indexOf('community')>=0 || tipo.indexOf('running team')>=0 || tipo.indexOf('portal')>=0)) match=true;
+    if (f==='multisport club' && (tipo.indexOf('club')>=0 || tipo.indexOf('atletismo')>=0 || tipo.indexOf('asociación')>=0)) match=true;
+    if (f==='running store' && (tipo.indexOf('store')>=0 || tipo.indexOf('tienda')>=0 || tipo.indexOf('indumentaria')>=0 || tipo.indexOf('escalada')>=0 || tipo.indexOf('outdoor')>=0 || tipo.indexOf('cadena')>=0 || tipo.indexOf('brand')>=0 || tipo.indexOf('distribuidor')>=0)) match=true;
+    if (f==='event org' && (tipo.indexOf('event')>=0 || tipo.indexOf('carrera')>=0 || tipo.indexOf('circuito')>=0 || tipo.indexOf('corporate')>=0)) match=true;
+    if (f==='government' && tipo.indexOf('government')>=0) match=true;
+    if (!match) return false;
+  }
+  
   if (q) { var hay=[r.nombre,r.tipo,r.provincia,r.zona,r.descripcion,r.email,r.web].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
   return true;
 }
