@@ -290,6 +290,7 @@ td { padding: 10px 12px; vertical-align: top; line-height: 1.5; color: #222; }
           <th style="width:140px" onclick="sortBA('zona')">Zona/Ubicación</th>
           <th style="width:140px">Descripción</th>
           <th style="width:90px" onclick="sortBA('prioridad')">Prioridad ↕</th>
+          <th style="width:80px">Volumen</th>
           <th style="width:150px">Email</th>
           <th style="width:130px">Web/Contacto</th>
         </tr></thead>
@@ -569,14 +570,14 @@ function renderBA() {
   if (sortBACol) vis = vis.slice().sort(function(a,b){ var va=(a[sortBACol]||'').toLowerCase(),vb=(b[sortBACol]||'').toLowerCase(); return va<vb?-sortBADir:va>vb?sortBADir:0; });
   var tb = document.getElementById('ba-tbody');
   if (!tb) return;
-  if (vis.length===0) { tb.innerHTML='<tr><td colspan="8" class="empty">No hay leads que coincidan.</td></tr>'; }
-  else { tb.innerHTML=vis.map(function(r){ return '<tr><td><div class="ev-name">'+(r.nombre||'—')+'</div></td><td>'+(r.tipo||'—')+'</td><td>'+(r.provincia||'—')+'</td><td><div class="ev-loc">'+(r.zona||'')+'</div></td><td><div class="gancho">'+(r.descripcion||'')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td><div class="org">'+(r.email||'—')+'</div></td><td><a href="'+(r.web||'#')+'" target="_blank" style="color:#0066cc;text-decoration:none;">'+(r.web?'Ver':'—')+'</a></div></td></tr>'; }).join(''); }
+  if (vis.length===0) { tb.innerHTML='<tr><td colspan="9" class="empty">No hay leads que coincidan.</td></tr>'; }
+  else { tb.innerHTML=vis.map(function(r){ var webLink = (r.web||'').trim(); var webHtml = webLink ? '<a href="'+webLink+'" target="_blank" style="color:#0066cc;text-decoration:none;">Ver</a>' : '—'; return '<tr><td><div class="ev-name">'+(r.nombre||'—')+'</div></td><td>'+(r.tipo||'—')+'</td><td>'+(r.provincia||'—')+'</td><td><div class="ev-loc">'+(r.zona||'')+'</div></td><td><div class="gancho">'+(r.descripcion||'')+'</div></td><td>'+prioHtml(r.prioridad)+'</td><td><strong>'+(r.volumen||'—')+'</strong></td><td>'+(r.email||'—')+'</td><td>'+webHtml+'</td></tr>'; }).join(''); }
   document.getElementById('ba-total').textContent=rowsBA.length;
   document.getElementById('ba-alta').textContent=rowsBA.filter(function(r){return(r.prioridad||'').toLowerCase()==='alta';}).length;
   document.getElementById('ba-media').textContent=rowsBA.filter(function(r){return(r.prioridad||'').toLowerCase()==='media';}).length;
   document.getElementById('ba-caba').textContent=rowsBA.filter(function(r){return(r.provincia||'').toUpperCase()==='CABA';}).length;
   document.getElementById('ba-gba').textContent=rowsBA.filter(function(r){return(r.provincia||'').toUpperCase()==='GBA';}).length;
-  document.getElementById('ba-litoral').textContent=rowsBA.filter(function(r){var p=(r.provincia||'').toLowerCase(); return p.indexOf('misiones')>=0||p.indexOf('corrientes')>=0||p.indexOf('entre ríos')>=0;}).length;
+  document.getElementById('ba-litoral').textContent=rowsBA.filter(function(r){var p=(r.provincia||'').toLowerCase(); return p.indexOf('misiones')>=0||p.indexOf('corrientes')>=0||p.indexOf('entre')>=0;}).length;
 }
 function setBAF(f,btn){ activeBAF=f; document.querySelectorAll('#tab-buenos-aires .chip').forEach(function(c){c.classList.remove('on');}); btn.classList.add('on'); renderBA(); }
 function sortBA(col){ sortBADir=sortBACol===col?sortBADir*-1:1; sortBACol=col; renderBA(); }
